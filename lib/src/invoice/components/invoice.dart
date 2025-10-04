@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:printing/printing.dart';
+import 'package:intl/intl.dart';
 
 class InvoicePage extends StatefulWidget {
-  const InvoicePage({super.key, required this.title});
-
-  final String title;
+  const InvoicePage({super.key});
 
   @override
   State<InvoicePage> createState() => _InvoicePageState();
@@ -55,6 +57,11 @@ class _InvoicePageState extends State<InvoicePage> {
     return _subtotal + _serviceChargeAmount - _advancePayment;
   }
 
+  String _formatCurrency(double amount) {
+    final formatter = NumberFormat('#,##0.00');
+    return formatter.format(amount);
+  }
+
   void _addNewRow() {
     setState(() {
       _items.add(InvoiceItem());
@@ -84,6 +91,239 @@ class _InvoicePageState extends State<InvoicePage> {
 
   String _formatDate(DateTime date) {
     return '${date.day.toString().padLeft(2, '0')}/${date.month.toString().padLeft(2, '0')}/${date.year}';
+  }
+
+  Future<void> _generateAndDownloadPDF() async {
+    final pdf = pw.Document();
+
+    pdf.addPage(
+      pw.Page(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(40),
+        build: (pw.Context context) {
+          return pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              // Header
+              pw.Text(
+                'Warahara Riverside Cottage',
+                style: pw.TextStyle(
+                  fontSize: 24,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 5),
+              pw.Text(
+                'Udawalawa',
+                style: pw.TextStyle(
+                  fontSize: 14,
+                  color: PdfColors.grey700,
+                ),
+              ),
+              pw.SizedBox(height: 30),
+
+              // Invoice Title
+              pw.Text(
+                'INVOICE',
+                style: pw.TextStyle(
+                  fontSize: 20,
+                  fontWeight: pw.FontWeight.bold,
+                  letterSpacing: 2,
+                ),
+              ),
+              pw.SizedBox(height: 20),
+
+              // Customer Info
+              pw.Row(
+                mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                children: [
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text(
+                        'Customer Name:',
+                        style: pw.TextStyle(
+                          fontSize: 12,
+                          color: PdfColors.grey700,
+                        ),
+                      ),
+                      pw.SizedBox(height: 5),
+                      pw.Text(
+                        '$_selectedTitle ${_customerNameController.text}',
+                        style: pw.TextStyle(
+                          fontSize: 14,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                  pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.end,
+                    children: [
+                      pw.Text(
+                        'Date:',
+                        style: pw.TextStyle(
+                          fontSize: 12,
+                          color: PdfColors.grey700,
+                        ),
+                      ),
+                      pw.SizedBox(height: 5),
+                      pw.Text(
+                        _formatDate(_selectedDate),
+                        style: pw.TextStyle(
+                          fontSize: 14,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              pw.SizedBox(height: 30),
+
+              // Items Table
+              pw.Table(
+                border: pw.TableBorder.all(color: PdfColors.grey400),
+                columnWidths: {
+                  0: const pw.FlexColumnWidth(3),
+                  1: const pw.FlexColumnWidth(1),
+                  2: const pw.FlexColumnWidth(2),
+                  3: const pw.FlexColumnWidth(2),
+                },
+                children: [
+                  // Header Row
+                  pw.TableRow(
+                    decoration: const pw.BoxDecoration(
+                      color: PdfColors.grey300,
+                    ),
+                    children: [
+                      _buildTableCell('Description', isHeader: true),
+                      _buildTableCell('Qty', isHeader: true),
+                      _buildTableCell('Unit Price', isHeader: true),
+                      _buildTableCell('Total Price', isHeader: true),
+                    ],
+                  ),
+                  // Data Rows
+                  for (var item in _items)
+                    pw.TableRow(
+                      children: [
+                        _buildTableCell(item.descriptionController.text),
+                        _buildTableCell(item.qtyController.text),
+                        _buildTableCell('LKR ${item.unitPriceController.text}'),
+                        _buildTableCell('LKR ${_formatCurrency(item.total)}'),
+                      ],
+                    ),
+                ],
+              ),
+              pw.SizedBox(height: 30),
+
+              // Financial Summary
+              pw.Align(
+                alignment: pw.Alignment.centerRight,
+                child: pw.Container(
+                  width: 300,
+                  decoration: pw.BoxDecoration(
+                    border: pw.Border.all(color: PdfColors.grey400),
+                    borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+                  ),
+                  child: pw.Column(
+                    children: [
+                      _buildSummaryRow('Subtotal', 'LKR ${_formatCurrency(_subtotal)}'),
+                      if (_serviceChargePercentage > 0) ...[
+                        _buildSummaryRow(
+                          'Service Charge ($_serviceChargePercentage%)',
+                          'LKR ${_formatCurrency(_serviceChargeAmount)}',
+                        ),
+                      ],
+                      _buildSummaryRow(
+                        'Advance Payment',
+                        'LKR ${_formatCurrency(_advancePayment)}',
+                      ),
+                      pw.Container(
+                        padding: const pw.EdgeInsets.all(12),
+                        decoration: const pw.BoxDecoration(
+                          color: PdfColors.green50,
+                          borderRadius: pw.BorderRadius.only(
+                            bottomLeft: pw.Radius.circular(8),
+                            bottomRight: pw.Radius.circular(8),
+                          ),
+                        ),
+                        child: pw.Row(
+                          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                          children: [
+                            pw.Text(
+                              'Balance Due',
+                              style: pw.TextStyle(
+                                fontSize: 16,
+                                fontWeight: pw.FontWeight.bold,
+                              ),
+                            ),
+                            pw.Text(
+                              'LKR ${_formatCurrency(_balance)}',
+                              style: pw.TextStyle(
+                                fontSize: 18,
+                                fontWeight: pw.FontWeight.bold,
+                                color: PdfColors.green700,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+
+    // Save and download the PDF
+    await Printing.sharePdf(
+      bytes: await pdf.save(),
+      filename: 'invoice_${_formatDate(_selectedDate).replaceAll('/', '-')}.pdf',
+    );
+  }
+
+  pw.Widget _buildTableCell(String text, {bool isHeader = false}) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(8),
+      child: pw.Text(
+        text,
+        style: pw.TextStyle(
+          fontSize: isHeader ? 12 : 11,
+          fontWeight: isHeader ? pw.FontWeight.bold : pw.FontWeight.normal,
+        ),
+      ),
+    );
+  }
+
+  pw.Widget _buildSummaryRow(String label, String value) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.all(12),
+      decoration: const pw.BoxDecoration(
+        border: pw.Border(
+          bottom: pw.BorderSide(color: PdfColors.grey300),
+        ),
+      ),
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Text(
+            label,
+            style: const pw.TextStyle(fontSize: 12),
+          ),
+          pw.Text(
+            value,
+            style: pw.TextStyle(
+              fontSize: 12,
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -278,7 +518,7 @@ class _InvoicePageState extends State<InvoicePage> {
                                   color: Colors.grey[100],
                                 ),
                                 child: Text(
-                                  'LKR ${_items[index].total.toStringAsFixed(2)}',
+                                  'LKR ${_formatCurrency(_items[index].total)}',
                                   style: const TextStyle(fontWeight: FontWeight.bold),
                                 ),
                               ),
@@ -346,7 +586,7 @@ class _InvoicePageState extends State<InvoicePage> {
                               ),
                             ),
                             Text(
-                              'LKR ${_subtotal.toStringAsFixed(2)}',
+                              'LKR ${_formatCurrency(_subtotal)}',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
@@ -406,7 +646,7 @@ class _InvoicePageState extends State<InvoicePage> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   Text(
-                                    'LKR ${_serviceChargeAmount.toStringAsFixed(2)}',
+                                    'LKR ${_formatCurrency(_serviceChargeAmount)}',
                                     style: TextStyle(
                                       fontSize: 14,
                                       fontWeight: FontWeight.w600,
@@ -485,7 +725,7 @@ class _InvoicePageState extends State<InvoicePage> {
                               ),
                             ),
                             Text(
-                              'LKR ${_balance.toStringAsFixed(2)}',
+                              'LKR ${_formatCurrency(_balance)}',
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
@@ -499,6 +739,20 @@ class _InvoicePageState extends State<InvoicePage> {
                   ),
                 ),
               ],
+            ),
+            const SizedBox(height: 32),
+
+            // Share PDF Button
+            Center(
+              child: ElevatedButton.icon(
+                onPressed: _generateAndDownloadPDF,
+                icon: const Icon(Icons.share),
+                label: const Text('Share PDF'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                  textStyle: const TextStyle(fontSize: 16),
+                ),
+              ),
             ),
             const SizedBox(height: 24),
           ],
