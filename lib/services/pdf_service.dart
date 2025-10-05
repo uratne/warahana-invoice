@@ -1,6 +1,7 @@
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import '../models/invoice_item.dart';
 import '../utils/formatters.dart';
 
@@ -18,6 +19,13 @@ class PdfService {
   }) async {
     final pdf = pw.Document();
 
+    // Load logo image
+    final logoImage = pw.MemoryImage(
+      (await rootBundle.load('assets/images/logo.png'))
+          .buffer
+          .asUint8List(),
+    );
+
     pdf.addPage(
       pw.Page(
         pageFormat: PdfPageFormat.a4,
@@ -26,20 +34,39 @@ class PdfService {
           return pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
             children: [
-              // Header
-              pw.Text(
-                'Warahara Riverside Cottage',
-                style: pw.TextStyle(
-                  fontSize: 24,
-                  fontWeight: pw.FontWeight.bold,
+              // Centered Logo
+              pw.Center(
+                child: pw.Container(
+                  width: 80,
+                  height: 80,
+                  child: pw.Image(
+                    logoImage,
+                    fit: pw.BoxFit.contain,
+                  ),
+                ),
+              ),
+              pw.SizedBox(height: 15),
+              
+              // Centered Company Name
+              pw.Center(
+                child: pw.Text(
+                  'Warahana Riverside Cottage',
+                  style: pw.TextStyle(
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold,
+                  ),
                 ),
               ),
               pw.SizedBox(height: 5),
-              pw.Text(
-                'Udawalawa',
-                style: pw.TextStyle(
-                  fontSize: 14,
-                  color: PdfColors.grey700,
+              
+              // Centered Location
+              pw.Center(
+                child: pw.Text(
+                  'Udawalawa',
+                  style: pw.TextStyle(
+                    fontSize: 14,
+                    color: PdfColors.grey700,
+                  ),
                 ),
               ),
               pw.SizedBox(height: 30),
