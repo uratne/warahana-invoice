@@ -9,7 +9,6 @@ class FinancialSummary extends StatelessWidget {
   final TextEditingController advancePaymentController;
   final double balance;
   final VoidCallback onChanged;
-  final FocusNode? serviceChargeFocusNode;
 
   const FinancialSummary({
     super.key,
@@ -20,7 +19,6 @@ class FinancialSummary extends StatelessWidget {
     required this.advancePaymentController,
     required this.balance,
     required this.onChanged,
-    this.serviceChargeFocusNode,
   });
 
   @override
@@ -100,7 +98,6 @@ class FinancialSummary extends StatelessWidget {
                           width: 100,
                           child: TextField(
                             controller: serviceChargeController,
-                            focusNode: serviceChargeFocusNode,
                             decoration: InputDecoration(
                               suffixText: '%',
                               border: OutlineInputBorder(
@@ -114,6 +111,13 @@ class FinancialSummary extends StatelessWidget {
                             ),
                             keyboardType: TextInputType.number,
                             onChanged: (value) => onChanged(),
+                            onTap: () {
+                              // Select all text when tapped
+                              serviceChargeController.selection = TextSelection(
+                                baseOffset: 0,
+                                extentOffset: serviceChargeController.text.length,
+                              );
+                            },
                             textAlign: TextAlign.center,
                           ),
                         ),
