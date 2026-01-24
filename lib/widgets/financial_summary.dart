@@ -9,6 +9,7 @@ class FinancialSummary extends StatelessWidget {
   final TextEditingController advancePaymentController;
   final double balance;
   final VoidCallback onChanged;
+  final FocusNode? serviceChargeFocusNode;
 
   const FinancialSummary({
     super.key,
@@ -19,6 +20,7 @@ class FinancialSummary extends StatelessWidget {
     required this.advancePaymentController,
     required this.balance,
     required this.onChanged,
+    this.serviceChargeFocusNode,
   });
 
   @override
@@ -98,8 +100,8 @@ class FinancialSummary extends StatelessWidget {
                           width: 100,
                           child: TextField(
                             controller: serviceChargeController,
+                            focusNode: serviceChargeFocusNode,
                             decoration: InputDecoration(
-                              hintText: '%',
                               suffixText: '%',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(6),

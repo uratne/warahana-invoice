@@ -15,11 +15,40 @@ class InvoicePage extends StatefulWidget {
 
 class _InvoicePageState extends State<InvoicePage> {
   final TextEditingController _customerNameController = TextEditingController();
-  final TextEditingController _serviceChargeController = TextEditingController();
+  final TextEditingController _serviceChargeController = TextEditingController(text: '0');
   final TextEditingController _advancePaymentController = TextEditingController();
+  final FocusNode _serviceChargeFocusNode = FocusNode();
   String _selectedTitle = 'Mr';
   DateTime _selectedDate = DateTime.now();
   final List<InvoiceItem> _items = [InvoiceItem()];
+
+  @override
+  void initState() {
+    super.initState();
+    _serviceChargeFocusNode.addListener(_onServiceChargeFocusChange);
+    _serviceChargeController.addListener(_onServiceChargeTextChange);
+  }
+
+  void _onServiceChargeFocusChange() {
+    if (_serviceChargeFocusNode.hasFocus) {
+      // Clear the field if it's "0" when focused
+      if (_serviceChargeController.text == '0') {
+        _serviceChargeController.clear();
+      }
+    } else {
+      // Reset to '0' if empty when focus is lost
+      if (_serviceChargeController.text.trim().isEmpty) {
+        _serviceChargeController.text = '0';
+      }
+    }
+  }
+
+  void _onServiceChargeTextChange() {
+    // Ensure we don't have just empty space
+    if (_serviceChargeController.text.trim().isEmpty && !_serviceChargeFocusNode.hasFocus) {
+      _serviceChargeController.text = '0';
+    }
+  }
 
   double get _subtotal {
     return _items.fold(0, (sum, item) => sum + item.total);
@@ -43,6 +72,7 @@ class _InvoicePageState extends State<InvoicePage> {
 
   void _addNewRow() {
     setState(() {
+    _serviceChargeFocusNode.dispose();
       _items.add(InvoiceItem());
     });
   }
@@ -127,6 +157,7 @@ class _InvoicePageState extends State<InvoicePage> {
               advancePaymentController: _advancePaymentController,
               balance: _balance,
               onChanged: () => setState(() {}),
+              serviceChargeFocusNode: _serviceChargeFocusNode,
             ),
             const SizedBox(height: 32),
 
