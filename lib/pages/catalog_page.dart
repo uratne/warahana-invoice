@@ -325,14 +325,17 @@ class _CatalogPageState extends State<CatalogPage> {
             ),
             const SizedBox(height: 12),
             
-            SizedBox(
-              height: 350,
-              child: _isLoading
-                  ? const Center(
+            _isLoading
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(40.0),
                       child: CircularProgressIndicator(),
-                    )
-                  : _filteredItems.isEmpty
-                      ? Center(
+                    ),
+                  )
+                : _filteredItems.isEmpty
+                    ? Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(40.0),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -361,10 +364,13 @@ class _CatalogPageState extends State<CatalogPage> {
                               ),
                             ],
                           ),
-                        )
-                      : ListView.builder(
-                          itemCount: _filteredItems.length,
-                          itemBuilder: (context, index) {
+                        ),
+                      )
+                    : ListView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: _filteredItems.length,
+                        itemBuilder: (context, index) {
                             final item = _filteredItems[index];
                             final actualIndex = _catalogItems.indexOf(item);
                             return Card(
@@ -401,7 +407,6 @@ class _CatalogPageState extends State<CatalogPage> {
                             );
                           },
                         ),
-            ),
           ],
         ),
       ),
