@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/invoice_page.dart';
+import 'pages/home_page.dart';
 
 void main() {
   runApp(const InvoiceApp());
@@ -16,7 +16,7 @@ class InvoiceApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.lightGreen),
         useMaterial3: true,
       ),
-      home: const InvoicePage(),
+      home: const HomePage(),
     );
   }
 }
