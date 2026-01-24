@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'invoice_page.dart';
-import 'placeholder_page.dart';
+import 'catalog_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -14,7 +14,7 @@ class _HomePageState extends State<HomePage> {
 
   final List<Widget> _pages = [
     const InvoicePage(),
-    const PlaceholderPage(),
+    const CatalogPage(),
   ];
 
   void _onItemTapped(int index) {
@@ -34,8 +34,8 @@ class _HomePageState extends State<HomePage> {
             label: 'Invoice',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'New Page',
+            icon: Icon(Icons.inventory_2),
+            label: 'Catalog',
           ),
         ],
         currentIndex: _selectedIndex,
