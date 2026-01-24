@@ -197,7 +197,7 @@ class _CatalogPageState extends State<CatalogPage> {
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         toolbarHeight: 5.0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -221,7 +221,7 @@ class _CatalogPageState extends State<CatalogPage> {
             Card(
               elevation: 2,
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(12.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -231,17 +231,19 @@ class _CatalogPageState extends State<CatalogPage> {
                             fontWeight: FontWeight.bold,
                           ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
                     TextField(
                       controller: _descriptionController,
                       decoration: const InputDecoration(
                         labelText: 'Description',
                         border: OutlineInputBorder(),
                         hintText: 'Enter item description',
+                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        isDense: true,
                       ),
-                      maxLines: 2,
+                      maxLines: 1,
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
                     Row(
                       children: [
                         Expanded(
@@ -251,6 +253,8 @@ class _CatalogPageState extends State<CatalogPage> {
                               labelText: 'Unit Price',
                               border: OutlineInputBorder(),
                               prefixText: 'Rs. ',
+                              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              isDense: true,
                             ),
                             keyboardType: const TextInputType.numberWithOptions(decimal: true),
                             inputFormatters: [
@@ -261,10 +265,10 @@ class _CatalogPageState extends State<CatalogPage> {
                         const SizedBox(width: 12),
                         ElevatedButton.icon(
                           onPressed: _addItem,
-                          icon: const Icon(Icons.add),
+                          icon: const Icon(Icons.add, size: 18),
                           label: const Text('Add'),
                           style: ElevatedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           ),
                         ),
                       ],
@@ -273,12 +277,16 @@ class _CatalogPageState extends State<CatalogPage> {
                 ),
               ),
             ),
+            const SizedBox(height: 16
+            ),
             const SizedBox(height: 24),
 
             // Search Bar
             TextField(
               controller: _searchController,
               decoration: InputDecoration(
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                isDense: true,
                 labelText: 'Search Items',
                 hintText: 'Type at least 3 characters to search',
                 border: const OutlineInputBorder(),
@@ -287,7 +295,7 @@ class _CatalogPageState extends State<CatalogPage> {
                     ? IconButton(
                         icon: const Icon(Icons.clear),
                         onPressed: _clearSearch,
-                        tooltip: 'Clear search',
+                        tooltip: 'Cl2ar search',
                       )
                     : null,
               ),
@@ -317,7 +325,8 @@ class _CatalogPageState extends State<CatalogPage> {
             ),
             const SizedBox(height: 12),
             
-            Expanded(
+            SizedBox(
+              height: 350,
               child: _isLoading
                   ? const Center(
                       child: CircularProgressIndicator(),
