@@ -15,7 +15,16 @@ class _CatalogPageState extends State<CatalogPage> {
   final List<CatalogItem> _catalogItems = [];
   final TextEditingController _descriptionController = TextEditingController();
   final TextEditingController _unitPriceController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   bool _isLoading = true;
+
+  List<CatalogItem> get _filteredItems {
+    final searchText = _searchController.text.trim();
+    if (searchText.length < 3) {
+      return _catalogItems;
+    }
+    return CatalogStorageService.searchCatalog(_catalogItems, searchText);
+  }
 
   @override
   void initState() {
@@ -167,10 +176,17 @@ class _CatalogPageState extends State<CatalogPage> {
     );
   }
 
+  void _clearSearch() {
+    setState(() {
+      _searchController.clear();
+    });
+  }
+
   @override
   void dispose() {
     _descriptionController.dispose();
     _unitPriceController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -259,12 +275,45 @@ class _CatalogPageState extends State<CatalogPage> {
             ),
             const SizedBox(height: 24),
 
-            // Items List
-            Text(
-              'Saved Items (${_catalogItems.length})',
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+            // Search Bar
+            TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                labelText: 'Search Items',
+                hintText: 'Type at least 3 characters to search',
+                border: const OutlineInputBorder(),
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear),
+                        onPressed: _clearSearch,
+                        tooltip: 'Clear search',
+                      )
+                    : null,
+              ),
+              onChanged: (value) => setState(() {}),
+            ),
+            const SizedBox(height: 16),
+
+            // Items List Header
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Saved Items (${_filteredItems.length}${_searchController.text.length >= 3 ? ' of ${_catalogItems.length}' : ''})',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                if (_searchController.text.isNotEmpty && _searchController.text.length < 3)
+                  Text(
+                    'Type ${3 - _searchController.text.length} more character${3 - _searchController.text.length > 1 ? 's' : ''}',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
+                          fontStyle: FontStyle.italic,
+                        ),
                   ),
+              ],
             ),
             const SizedBox(height: 12),
             
@@ -273,7 +322,7 @@ class _CatalogPageState extends State<CatalogPage> {
                   ? const Center(
                       child: CircularProgressIndicator(),
                     )
-                  : _catalogItems.isEmpty
+                  : _filteredItems.isEmpty
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
@@ -285,14 +334,18 @@ class _CatalogPageState extends State<CatalogPage> {
                               ),
                               const SizedBox(height: 16),
                               Text(
-                                'No items in catalog',
+                                _catalogItems.isEmpty 
+                                    ? 'No items in catalog' 
+                                    : 'No matching items found',
                                 style: Theme.of(context).textTheme.titleMedium?.copyWith(
                                       color: Colors.grey[600],
                                     ),
                               ),
                               const SizedBox(height: 8),
                               Text(
-                                'Add items above to get started',
+                                _catalogItems.isEmpty 
+                                    ? 'Add items above to get started'
+                                    : 'Try a different search term',
                                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                       color: Colors.grey[500],
                                     ),
@@ -301,9 +354,10 @@ class _CatalogPageState extends State<CatalogPage> {
                           ),
                         )
                       : ListView.builder(
-                          itemCount: _catalogItems.length,
+                          itemCount: _filteredItems.length,
                           itemBuilder: (context, index) {
-                            final item = _catalogItems[index];
+                            final item = _filteredItems[index];
+                            final actualIndex = _catalogItems.indexOf(item);
                             return Card(
                               margin: const EdgeInsets.only(bottom: 8),
                               child: ListTile(
@@ -323,12 +377,12 @@ class _CatalogPageState extends State<CatalogPage> {
                                   children: [
                                     IconButton(
                                       icon: const Icon(Icons.edit),
-                                      onPressed: () => _editItem(index),
+                                      onPressed: () => _editItem(actualIndex),
                                       tooltip: 'Edit',
                                     ),
                                     IconButton(
                                       icon: const Icon(Icons.delete),
-                                      onPressed: () => _deleteItem(index),
+                                      onPressed: () => _deleteItem(actualIndex),
                                       color: Colors.red[400],
                                       tooltip: 'Delete',
                                     ),
