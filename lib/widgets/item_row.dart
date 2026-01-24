@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import '../models/invoice_item.dart';
+import '../models/catalog_item.dart';
 import '../utils/formatters.dart';
+import 'catalog_autocomplete.dart';
 
 class ItemRow extends StatelessWidget {
   final InvoiceItem item;
@@ -13,6 +15,13 @@ class ItemRow extends StatelessWidget {
     required this.onChanged,
     this.onDelete,
   });
+
+  void _onCatalogItemSelected(CatalogItem catalogItem) {
+    // Populate description and unit price from catalog
+    item.descriptionController.text = catalogItem.description;
+    item.unitPriceController.text = catalogItem.unitPrice.toString();
+    onChanged();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,13 +36,9 @@ class ItemRow extends StatelessWidget {
         children: [
           Expanded(
             flex: 3,
-            child: TextField(
+            child: CatalogAutocomplete(
               controller: item.descriptionController,
-              decoration: const InputDecoration(
-                hintText: 'Description',
-                border: OutlineInputBorder(),
-                contentPadding: EdgeInsets.all(8),
-              ),
+              onItemSelected: _onCatalogItemSelected,
             ),
           ),
           const SizedBox(width: 8),
