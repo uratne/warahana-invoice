@@ -16,6 +16,7 @@ class InvoicePage extends StatefulWidget {
 class _InvoicePageState extends State<InvoicePage> {
   final TextEditingController _customerNameController = TextEditingController();
   final TextEditingController _serviceChargeController = TextEditingController(text: '0');
+  final TextEditingController _discountController = TextEditingController();
   final TextEditingController _advancePaymentController = TextEditingController();
   String _selectedTitle = 'Mr';
   DateTime _selectedDate = DateTime.now();
@@ -33,12 +34,16 @@ class _InvoicePageState extends State<InvoicePage> {
     return _subtotal * (_serviceChargePercentage / 100);
   }
 
+  double get _discount {
+    return double.tryParse(_discountController.text) ?? 0;
+  }
+
   double get _advancePayment {
     return double.tryParse(_advancePaymentController.text) ?? 0;
   }
 
   double get _balance {
-    return _subtotal + _serviceChargeAmount - _advancePayment;
+    return _subtotal - _discount + _serviceChargeAmount - _advancePayment;
   }
 
   void _addNewRow() {
@@ -63,6 +68,7 @@ class _InvoicePageState extends State<InvoicePage> {
       subtotal: _subtotal,
       serviceChargePercentage: _serviceChargePercentage,
       serviceChargeAmount: _serviceChargeAmount,
+      discount: _discount,
       advancePayment: _advancePayment,
       balance: _balance,
     );
@@ -72,6 +78,7 @@ class _InvoicePageState extends State<InvoicePage> {
   void dispose() {
     _customerNameController.dispose();
     _serviceChargeController.dispose();
+    _discountController.dispose();
     _advancePaymentController.dispose();
     for (var item in _items) {
       item.dispose();
@@ -124,6 +131,7 @@ class _InvoicePageState extends State<InvoicePage> {
               serviceChargeController: _serviceChargeController,
               serviceChargePercentage: _serviceChargePercentage,
               serviceChargeAmount: _serviceChargeAmount,
+              discountController: _discountController,
               advancePaymentController: _advancePaymentController,
               balance: _balance,
               onChanged: () => setState(() {}),

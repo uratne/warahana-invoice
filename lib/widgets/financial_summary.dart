@@ -6,6 +6,7 @@ class FinancialSummary extends StatelessWidget {
   final TextEditingController serviceChargeController;
   final double serviceChargePercentage;
   final double serviceChargeAmount;
+  final TextEditingController discountController;
   final TextEditingController advancePaymentController;
   final double balance;
   final VoidCallback onChanged;
@@ -16,6 +17,7 @@ class FinancialSummary extends StatelessWidget {
     required this.serviceChargeController,
     required this.serviceChargePercentage,
     required this.serviceChargeAmount,
+    required this.discountController,
     required this.advancePaymentController,
     required this.balance,
     required this.onChanged,
@@ -139,6 +141,49 @@ class FinancialSummary extends StatelessWidget {
                         ],
                       ),
                     ],
+                  ],
+                ),
+              ),
+
+              // Discount
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Colors.grey[200]!),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Discount',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    SizedBox(
+                      width: 150,
+                      child: TextField(
+                        controller: discountController,
+                        decoration: InputDecoration(
+                          hintText: '0.00',
+                          prefixText: 'LKR ',
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          isDense: true,
+                        ),
+                        keyboardType: TextInputType.number,
+                        onChanged: (value) => onChanged(),
+                        textAlign: TextAlign.right,
+                      ),
+                    ),
                   ],
                 ),
               ),

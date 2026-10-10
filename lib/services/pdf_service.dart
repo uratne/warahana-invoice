@@ -14,6 +14,7 @@ class PdfService {
     required double subtotal,
     required double serviceChargePercentage,
     required double serviceChargeAmount,
+    required double discount,
     required double advancePayment,
     required double balance,
   }) async {
@@ -57,6 +58,7 @@ class PdfService {
               subtotal,
               serviceChargePercentage,
               serviceChargeAmount,
+              discount,
               advancePayment,
               balance,
             ),
@@ -216,6 +218,7 @@ class PdfService {
     double subtotal,
     double serviceChargePercentage,
     double serviceChargeAmount,
+    double discount,
     double advancePayment,
     double balance,
   ) {
@@ -234,6 +237,12 @@ class PdfService {
               _buildSummaryRow(
                 'Service Charge ($serviceChargePercentage%)',
                 'LKR ${Formatters.formatCurrency(serviceChargeAmount)}',
+              ),
+            ],
+            if (discount > 0) ...[
+              _buildSummaryRow(
+                'Discount',
+                'LKR ${Formatters.formatCurrency(discount)}',
               ),
             ],
             _buildSummaryRow(
