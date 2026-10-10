@@ -1,6 +1,6 @@
 name: invoice_app
 description: Warahana - Invoice generator app
-version: 1.0.0+1  # version+build number
+version: 1.0.1  # version+build number
 
 environment:
   sdk: ^3.9.2
